@@ -1,0 +1,41 @@
+import numpy as np
+import pandas as pd
+import pandas_datareader as pdr
+from pandas.plotting import register_matplotlib_converters
+register_matplotlib_converters()
+import matplotlib.pyplot as plt
+import seaborn as sns
+import ta
+
+
+stocks = "AMZN GOOG NFLX FB GLD".split()
+data = pdr.get_data_yahoo(stocks, '20180101')['Close']
+print(data.head())
+print(data.quantile(.25))
+
+
+
+fig = plt.plot(data['AMZN'])
+pct_change = np.log(data).diff()
+pct_change.dropna(inplace=True)
+change = data.pct_change()
+plt.hist(pct_change['AMZN'], bins=35, color='g', edgecolor='w');
+sns.pairplot(pct_change)
+
+
+
+
+# pip install ta
+
+aapl = pdr.get_data_yahoo('AAPL', '20181001')
+aapl.head()
+aapl['rsi'] = ta.momentum.rsi(aapl['Close'],14)
+aapl['21-day'] = aapl.Close.rolling(21).mean()
+aapl['63-day'] = aapl.Close.rolling(63).mean()
+aapl.tail()
+
+plt.rcParams["figure.figsize"] = (10,6)
+plt.plot(aapl[['Close', '21-day', '63-day']])
+
+plt.show(block=True)
+plt.interactive(False)
